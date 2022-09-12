@@ -9,24 +9,131 @@ Defines and exports different basic odd-data structures for different files to
 use.
 ##### Module Composition
 - [**OddStructures**]() - High-level API!
+- [Components.jl]() - Toolips binding to OddStructures
 """
 module OddStructures
-import Toolips: Servable, write!
+import Toolips: Servable, write!, Component
 using ParseNotEval
-using AlgebraicArrays
+using Algebraic
 using CarouselArrays
 using Dates
 
-
-
-abstract type AbstractOddFrame <: Servable end
-
-StreamArray(length::String, uri::String) = AlgebraicArray(n::Int64) do row::AbstractVector
-    [parse(T, read(uri, i)) for i in 1:]::Vector{}
+mutable struct IndexSymbol{S <: Function}
+    f::Function
+    IndexSymbol(symb::String = "all") = IndexSymbol{Symbol(symb)}()
 end
 
-mutable struct AlgebraicArray
+const zeros = Index{:zeros}()
+const all = Index{:all}(:all)()
+abstract type AbstractDimensions <: Servable end
+
+function vector()
+
+end
+
+function length(ad::AbstractDimensions)
+
+end
+
+function depth()
+
+end
+
+
+abstract type AbstractOddFrame <: AbstractDimensions end
+
+abstract type AbstractTensor <: AbstractOddFrame end
+
+mutable struct Dimensions <: AbstractDimensions end
+    dimensions::Int64
+    types::Vector{DataType{<: Any}}
+    Dimensions(i::Int64, t::Vector{Type} = (typeof(i) for i in 1:4)) = Dimensions(length(1:i), t)::Dimensions
+    Dimensions(i::Int64)
+end
+
+length(ad::AbstractDimensions) = length(1:ad.dimensions)
+
+const d = Dimensions
+
+*(i::Number ..., t::Type{<:Numver}) begin
+
+end
+
+*(i::Number, d::Dimension) = begin
+
+end
+
+
+
+vect(ad::AbstractDimensions, i::Vector{AbstractNumber} ...) begin
+
+end
+
+Matrix(t::Tensor{<:Any}) = Matrix()
+
+.*(ad::AbstractDimensions, i::Number) = begin
+
+end
+*(ad::AbstractDimensions, i::Number) = begin
+
+end
+
+contains(ad::AbstractDimensions, needle::AbstractDimensions) = begin
+
+end
+
+.*(ad::AbstractDimensions, ad::AbstractDimenions) = begin
+
+end
+
+const all = IndexSymbol(all)
+
+function getindex(od::AbstractDimensions, all::IndexSymbol{<:Any}, i::Int64)
+
+end
+
+function getindex(od::AbstractOddFrame, all::IndexSymbol{<:Any}, i::IndexSymbol{<:Any})
+    return()
+end
+
+function getindex(od::AbstractOddFrame, i::Int64, all::IndexSymbol{<:Any}})
+
+end
+
+function getindex(od::AbstractOddFrame, s::String, all::IndexSymbol{<:Any})
+
+end
+
+
+
+table(name::String, p::Pair{String, <:Any} ...; args ...) = Component(name, "table")
+td(name::String, p::Pair{String, <:Any} ...; args ...) = Component(name, "td")
+th(name::String, p::Pair{String, <:Any} ...; args ...) = Component(name, "th")
+tr(name::String, p::Pair{String, <:Any} ...; args ...) = Component(name, "tr")
+
+write!(c::Connection, od::AbstractOddFrame) = begin
+        rows = od[all, 1]
+end
+function write!(c::AbstractConnection, )
+
+# x y z r g b a r
+
+
+StreamArray(length::Int64, uri::String) = AlgebraicArray(n::Int64) do row::AbstractVector
+    [parse(T, read(uri, i)) for i in 1:n]::Vector{}
+end
+
+mutable struct AlgebraicArray{T <: Number}
     n::Int64
+    f::Function
+    generator::Int64
+    function AlgebraicArray()
+
+    end
+end
+ImageArray()
+
+StreamArray()
 
 """
 - OddStructures
@@ -119,8 +226,7 @@ array
 """
 apply!(array::AbstractArray, f::Function) = [insert!(array, i, f(val)) for (i, val) in enumerate(array)]
 
+export parse, AlgebraicArray, CarouselArray, StreamArray, write!
 export Date, DateTime, parse
 export apply!, apply, ivalues, ikeys
-export compute, algebraic!, AlgebraicArray, linear_UUID
-export %, px_str, hex_str
 end # module
