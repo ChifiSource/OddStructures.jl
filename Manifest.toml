@@ -1,0 +1,23 @@
+# This file is machine-generated - editing it directly is not advised
+
+julia_version = "1.7.2"
+manifest_format = "2.0"
+
+[[deps.Dates]]
+deps = ["Printf"]
+uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
+
+[[deps.ParseNotEval]]
+deps = ["Dates"]
+git-tree-sha1 = "66431d1fa0178c16abd08b21905cf1a93590439e"
+repo-rev = "main"
+repo-url = "https://github.com/ChifiSource/ParseNotEval.jl.git"
+uuid = "8aa82b3d-5f10-4499-b4c6-079a0c256bc8"
+version = "0.1.0"
+
+[[deps.Printf]]
+deps = ["Unicode"]
+uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+
+[[deps.Unicode]]
+uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
