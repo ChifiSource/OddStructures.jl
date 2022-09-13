@@ -12,30 +12,81 @@ use.
 - [Components.jl]() - Toolips binding to OddStructures
 """
 module OddStructures
-import Toolips: Servable, write!, Component
 using ParseNotEval
 using CarouselArrays
 using Dates
 
+abstract type AbstractDimensions end
+abstract type AbstractAlgebra <: AbstractDimensions end
+abstract type AbstractCombination <: AbstractDimensions end
+
+mutable struct Dimension{T <: Any} <: AbstractAlgebra
+    n::Int64
+    Dimensions(i::Number; t::Type = Float64) = new{t}(n)::Dimensions
+end
+
+Base.@pure get_parameter(type::Any) = begin
+    typeof(x).parameters[2]::Type
+end
+
+fill!(f::Function, d::AbstractDimensions) = begin
+    f(d)
+end
+
+
+
+fill!(d::AbstractAlgebra) = begin
+    T = get_parameter(d)
+    gen::UnitRange{T} = n:length(d)
+end
+
+function getindex(f::Function, ad::AbstractDimensions)
+
+end
+
+function getindex(u::UnitRange, ad::AbstractDimensions)
+
+end
+
+function setindex(u::UnitRange, ad::AbstractDimensions)
+
+end
+
 #==
 Combinations
 ==#
-abstract type AbstractCombination <: AbstractDimensions end
-
-mutable struct Combination{S <: AbstractString}
+mutable struct Combination{S <: AbstractString} <: AbstractDimensions
     k::Vector{S}
 end
 
+mutable struct AlgebraicCombination{T <: Any} <: AbstractAlgebra
+    f::Function
+    n::Int64
+    vect::AlgebraicCombination
+end
+
+all(ad::AbstractDimensions) = begin
+    [1:length(dim) for i in length(dim)]
+end
+
+
+(:)(t::Type ..., i::Int64 ...) = begin
+    [t]
+end
+#==
+Combinations
+==#
+
+
+vect(c::AbstractCombination ... = MixedCombination())
+
+
+
+
+
 #==TODO find greatest sub-type
 ==#
-mutable struct MixedCombination{S <: Any}
-    T::Vector{Type}
-    k::Vector{<:Any}
-    function MixedCombination()
 
-    end
-
-end
 
 (:)(c::Combination{<:Any} ...) = begin
     Combination(vcat(k))::Combination{typeof(k)}
