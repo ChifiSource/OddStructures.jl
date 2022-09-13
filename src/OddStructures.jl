@@ -5,11 +5,16 @@ by team
 [odd-data](https://github.com/orgs/ChifiSource/teams/odd-data)
 This software is MIT-licensed.
 ### OddStructures
-Defines and exports different basic odd-data structures for different files to
-use.
-##### Module Composition
-- [**OddStructures**]() - High-level API!
-- [Components.jl]() - Toolips binding to OddStructures
+OddStructures provides basic densionality and types for odddata modules.
+##### example
+```julia
+densions = 3d * 5
+
+# reshapes vertically
+vector3 = fill!(densions) do c::Combination{Int64}
+    [c]
+end
+```
 """
 module OddStructures
 using ParseNotEval
@@ -17,215 +22,166 @@ using CarouselArrays
 using Dates
 import Base: vect, getindex, setindex!, (:), length, size
 
+"""
+### abstract type AbstractDimensions
+Dimensions explain the shape that data goes together. Dimensions in this case
+can be any number.
+##### Consistencies
+- n::Combination{Int64}
+"""
 abstract type AbstractDimensions end
-abstract type Dimensions <: AbstractDimensions end
-abstract type AbstractAlgebra <: AbstractDimensions end
-abstract type AbstractCombination <: AbstractAlgebra end
 
+"""
+### abstract type AbstractAlgebra <: AbstractDimensions
+An abstract definition for Algebraic data.
+##### Consistencies
+- fill!(f::Function, aa::AbstractAlgebra)
+"""
+abstract type AbstractAlgebra <: AbstractDimensions end
+
+"""
+### abstract type AbstractCombination <: AbstractDimensions
+A combination is a horizontal collection of observations. These can be
+vectorized with `[]` and `:`.
+```julia
+
+```
+##### Consistencies
+- k::Vector{T}
+"""
+abstract type AbstractCombination <: AbstractDimensions end
+
+"""
+### Combination{T <: Any} <: AbstractCombination
+- k::Vector{S}
+A horizontal concatenation of `k`'s values.
+##### example
+```
+combo = "hi":"hello"
+Combination{String}(["hi", "hello"])
+```
+------------------
+##### constructors
+- Combination{T}(s::Any ...)
+"""
 mutable struct Combination{S <: Any} <: AbstractCombination
     k::Vector{S}
+    Combination{T}(s::Any ...) where {T <: Any} = new{T}([k for k in s])
+    Combination(s::Any ...) = Combination{typeof(s[1])}([k for k in s])
 end
 
+"""
+### Combination{T <: Any} <: AbstractAlgebra
+- f::Combination{Function}
+- n::Combination{Int64}
+------------------
+##### constructors
+- AlgebraicCombination{T}(f::Function, n::Any)
+"""
 mutable struct AlgebraicCombination{T <: Any} <: AbstractAlgebra
     f::Combination{Function}
     n::Combination{Int64}
     AlgebraicCombination{T}(f::Function, n::Any) {where T <: Any} = new{T}(f, n)
 end
 
+"""
+### Combination{T <: Any} <: AbstractAlgebra
+- f::Combination{Function}
+- n::Combination{Int64}
+
+### example
+```julia
+
+```
+------------------
+##### constructors
+- AlgebraicCombination{T}(f::Function, n::Any)
+"""
 mutable struct Dimensions <: AbstractAlgebra
     n::Combination{Int64}
     Dimensions(i::NumberCombination{<:Any}, t::Type = Float64) = new{t}(n)::Dimensions
-    Dimensions(i::Number) = new{Any}(n)::Dimensions
+    Dimensions(i::NumberCombination{<:Any}) = new{Any}(n)::Dimensions
 end
 
-(:)(t::Data ..., i::Int64 ...) = begin
-    Dimensions(length(i), t)
-end
-vect(a::AbstractAlgebra ...) = [hcat(fill!(a) for a in 1:a.n)]
+const dim = Dimensions(1)
 
-vect(n::Combination{<:Any}) = Vector{(n.k)}()
+(:)(t::DataType{<:Any}, i::Int64, d::Dimensions) = begin
+
+end
+
+(:)(t::DataType{<:Any}, i::Int64, d::Dimensions) = begin
+
+end
 
 depth(d::AbstractDimensions) = d.n[3]
-width(d::Dimensions) =  n[2]
+width(d::AbstractDimensions) =  d.n[2]
+length(d::AbstactDimensions) = d.n[1]
 size(d::AbstractDimensions) = d.n
+
+function size!(d::AbstractDimensions)
+
+end
+
+length(c::Combination) = length(c.k)
+width(c::Combination) = 1
+depth(c::Combination) = 1
+
+*(i::Number ..., t::Type{<:Number}) begin
+
+end
+
+*(d::AbstractDimensions, i::Number = 1) = begin
+
+end
+
+*(d::AbstractDimensions, i::Number = 1) = begin
+
+end
+
+*(i::Int64, d::Dimension) =
+
+*(x::Number, d::Dimension, y::Number = 1, z::Number = 1) = begin
+    *(i, d) * i
+end
+
+vect(a::AbstractAlgebra ...) = [hcat(fill!(a) for a in 1:a.n)]
+vect(n::Combination{<:Any} ...) = [Vector{(typeof(n.k)}(k)]
+
 size!(d::AbstractDimensions, i::Int64 ...) = begin
     n = d.n
 end
-
 fill!(f::Function, d::NumberCombination) = begin
     create
 end
-
 fill!(f::Function, c::AbstractCombination) = begin
     f(length(c.n))
 end
-
 fill!(f::Function, c::AlgebraicCombination) = begin
     f(length(c.n))
 end
-
 fill!(d::AbstractAlgebra) = begin
     T = get_parameter(d)
     Dimensions()
 end
-
 all(ad::AbstractDimensions) = begin
     [1:length(n) for i in length(n)]
 end
-
-
 getindex(f::Function = all, aa::AbstractDimensions, c::NumberCombination) = begin
     if length(c) < length(c)
         IndexError("The $(aa.n)")
     end
     c[]
 end
-
 getindex(f::Function = all, aa::AbstractAlgebra, c::NumberCombination) = begin
     fill!(aa)
 end
 
 
 
-
-
-(:)(f::Function, cf::Combination{Function})
-
-(:)(elements::AbstractString ...) = begin
-    Combination{typeof(elements[1])}([s for s in elements]::Vector{typeof(elements[1])})
-end
-
-(:)(elements::Number ...) = begin
-    NumericalCombination{typeof(elements[1])}()
-end
-
-
-
-
-
-string(c::Combination{<:AbstractString}) = string(join(["$k:" for k in c.k]))
-
-
-
-getindex(c::Combination, i::Int64) = c.k[i]::String
-setindex!(c::Combination, s::String, i::Int64) = c.k[i] = s
-length(c::Combination) = length(c.k)
-
-mutable struct IndexSymbol{S <: Function}
-    f::Function
-    IndexSymbol(symb::String = "all") = IndexSymbol{Symbol(symb)}()
-end
-
-function vector()
-
-end
-
-function length(ad::AbstractDimensions)
-
-end
-
-function depth()
-
-end
-
-
-
-
-mutable struct Dimensions <: AbstractDimensions end
-    dimensions::Int64
-    types::Vector{DataType{<: Any}}
-    Dimensions(i::Int64, t::Vector{Type} = (typeof(i) for i in 1:4)) = Dimensions(length(1:i), t)::Dimensions
-    Dimensions(i::Int64)
-end
-
-length(ad::AbstractDimensions) = length(1:ad.dimensions)
-
-const d = Dimensions
-
-*(i::Number ..., t::Type{<:Numver}) begin
-
-end
-
-*(i::Number, d::Dimension) = begin
-
-end
-
-
-
-vect(ad::AbstractDimensions, i::Vector{AbstractNumber} ...) begin
-
-end
-
-Matrix(t::Tensor{<:Any}) = Matrix()
-
-.*(ad::AbstractDimensions, i::Number) = begin
-
-end
-*(ad::AbstractDimensions, i::Number) = begin
-
-end
-
-contains(ad::AbstractDimensions, needle::AbstractDimensions) = begin
-
-end
-
-.*(ad::AbstractDimensions, ad::AbstractDimenions) = begin
-
-end
-
-const all = IndexSymbol(all)
-
-function getindex(od::AbstractDimensions, all::IndexSymbol{<:Any}, i::Int64)
-
-end
-
-function getindex(od::AbstractOddFrame, all::IndexSymbol{<:Any}, i::IndexSymbol{<:Any})
-    return()
-end
-
-function getindex(od::AbstractOddFrame, i::Int64, all::IndexSymbol{<:Any}})
-
-end
-
-function getindex(od::AbstractOddFrame, s::String, all::IndexSymbol{<:Any})
-
-end
-
-
-
-table(name::String, p::Pair{String, <:Any} ...; args ...) = Component(name, "table")
-td(name::String, p::Pair{String, <:Any} ...; args ...) = Component(name, "td")
-th(name::String, p::Pair{String, <:Any} ...; args ...) = Component(name, "th")
-tr(name::String, p::Pair{String, <:Any} ...; args ...) = Component(name, "tr")
-
-write!(c::Connection, od::AbstractOddFrame) = begin
-        rows = od[all, 1]
-end
-function write!(c::AbstractConnection, )
-
-# x y z r g b a r
-
-
-StreamArray(length::Int64, uri::String) = AlgebraicArray(n::Int64) do row::AbstractVector
-    [parse(T, read(uri, i)) for i in 1:n]::Vector{}
-end
-
-mutable struct AlgebraicArray{T <: Number}
-    n::Int64
-    f::Function
-    generator::Int64
-    function AlgebraicArray()
-
-    end
-end
-ImageArray()
-
-StreamArray()
-
 """
 - OddStructures
 ### ikeys(pairs::Vector{Pair}) -> Array{Any}
-Parses keys of pairs into a 1-dimensional array.
+Parses keys of pairs into a 1-densional array.
 ##### example
 ```
 pairs = [:A => [5, 10], :B => [5, 10]]
@@ -239,7 +195,7 @@ ikeys(pairs::Any) = [p[1] for p in pairs]
 - OddStructures
 - Base Tools
 ### ivalues(pairs::Vector{Pair}) -> Array{Array}
-Parses values of pairs into a 1-dimensional array.
+Parses values of pairs into a 1-densional array.
 ##### example
 ```
 pairs = [:A => [5, 10], :B => [5, 10]]
@@ -297,7 +253,7 @@ array
 [10, 15, 20]
 ```
 """
-apply(array::AbstractArray, f::Function) = [f(x) for x in array]
+apply(array::AbstractDimensions, f::Function) = [f(x) for x in array]
 
 """
 - OddStructures
@@ -311,7 +267,7 @@ array
 [10, 15, 20]
 ```
 """
-apply!(array::AbstractArray, f::Function) = [insert!(array, i, f(val)) for (i, val) in enumerate(array)]
+apply!(array::AbsstractDimensions, f::Function) = [insert!(array, i, f(val)) for (i, val) in enumerate(array)]
 
 export parse, AlgebraicArray, CarouselArray, StreamArray, write!
 export Date, DateTime, parse
