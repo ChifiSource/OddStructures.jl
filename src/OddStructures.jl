@@ -20,81 +20,79 @@ abstract type AbstractDimensions end
 abstract type AbstractAlgebra <: AbstractDimensions end
 abstract type AbstractCombination <: AbstractDimensions end
 
-mutable struct Dimension{T <: Any} <: AbstractAlgebra
-    n::Int64
-    Dimensions(i::Number; t::Type = Float64) = new{t}(n)::Dimensions
+mutable struct NumberCombination{N <: Number} <: AbstractCombination
+    k::Vector{N}
 end
 
-Base.@pure get_parameter(type::Any) = begin
-    typeof(x).parameters[2]::Type
+mutable struct Combination{S <: Any} <: AbstractCombination
+    k::Vector{S}
+end
+
+mutable struct AlgebraicCombination{T <: Any} <: AbstractCombination
+    f::Function
+    n::NumberCombination{Int64}
+    vect::AlgebraicCombination
+end
+
+
+mutable struct Dimensions <: AbstractAlgebra
+    n::NumberCombination{Int64}
+    Dimensions(i::NumberCombination{<:Any}, t::Type = Float64) = new{t}(n)::Dimensions
 end
 
 fill!(f::Function, d::AbstractDimensions) = begin
     f(d)
 end
 
+fill!(f::Function, c::AbstractCombination) = begin
+    f(length(c.n))
+end
 
+fill!(f::Function, c::AlgebraicCombination) = begin
+    f(length(c.n))
+end
 
 fill!(d::AbstractAlgebra) = begin
     T = get_parameter(d)
-    gen::UnitRange{T} = n:length(d)
+    Dimensions()
 end
 
-function getindex(f::Function, ad::AbstractDimensions)
 
+getindex(f::Function = all, aa::AbstractDimensions, c::NumberCombination) = begin
+    if length(c) < length(c)
+        IndexError("The $(aa.n)")
+    end
+    c[]
 end
 
-function getindex(u::UnitRange, ad::AbstractDimensions)
-
+getindex(f::Function = all, aa::AbstractAlgebra, c::NumberCombination) = begin
+    fill!(aa)
 end
 
-function setindex(u::UnitRange, ad::AbstractDimensions)
 
-end
+
+vect(a::AbstractAlgebra ...) = [hcat(fill!(a) for a in 1:a.n)]
+
+vect(a::AbstractDimensions ...) = [hcat(a) for a in 1:a.n]
 
 #==
 Combinations
 ==#
-mutable struct Combination{S <: AbstractString} <: AbstractDimensions
-    k::Vector{S}
-end
-
-mutable struct AlgebraicCombination{T <: Any} <: AbstractAlgebra
-    f::Function
-    n::Int64
-    vect::AlgebraicCombination
-end
-
 all(ad::AbstractDimensions) = begin
-    [1:length(dim) for i in length(dim)]
+    [1:length(n) for i in length(n)]
 end
 
 
-(:)(t::Type ..., i::Int64 ...) = begin
-    [t]
+(:)(t::Data ..., i::Int64 ...) = begin
+    Dimensions(length(i), t)
 end
-#==
-Combinations
-==#
-
-
-vect(c::AbstractCombination ... = MixedCombination())
-
-
-
-
-
-#==TODO find greatest sub-type
-==#
-
+(:)(dimensions::AbstractDimensions, )
 
 (:)(c::Combination{<:Any} ...) = begin
     Combination(vcat(k))::Combination{typeof(k)}
 end
 
-mutable struct NumberCombination{N <: Number}
-    k::Vector{N}
-end
+
 
 (:)(f::Function, ac::AlgebraicCombination)
 
