@@ -81,7 +81,7 @@ end
 mutable struct AlgebraicCombination{T <: Any} <: AbstractAlgebra
     f::Combination{Function}
     n::Combination{Int64}
-    AlgebraicCombination{T}(f::Function, n::Any) {where T <: Any} = new{T}(f, n)
+    AlgebraicCombination{T}(f::Function, n::Any) where {T <: Any} = new{T}(f, n)
 end
 
 """
@@ -105,13 +105,32 @@ end
 
 const dim = Dimensions(1)
 
-(:)(t::DataType{<:Any}, i::Int64, d::Dimensions) = begin
+"""
+**OddStructures**
+### (:)(t::DataType{<:Any}, i::Int64, d::Dimensions)
+------------------
+Copies properties from s,properties into c.properties.
+#### example
+```
 
+```
+"""
+(:)(t::DataType{<:Any}, i::Int64, d::Dimensions) = begin
 end
 
-(:)(t::DataType{<:Any}, i::Int64, d::Dimensions) = begin
+"""
+**OddStructures**
+### (:)(d::Integer ...)
+------------------
+Creates a combination from a given length.
+#### example
+```
 
-end
+```
+"""
+(:)(d::Integer ...) = Combination{typeof(d)}([d])
+
+(:)(d::Any ...) = Combination{typeof(d[1])}([d for d in d])
 
 depth(d::AbstractDimensions) = d.n[3]
 width(d::AbstractDimensions) =  d.n[2]
@@ -122,9 +141,9 @@ function size!(d::AbstractDimensions)
 
 end
 
-length(c::Combination) = length(c.k)
-width(c::Combination) = 1
-depth(c::Combination) = 1
+length(c::AbstractCombination) = length(c.k)
+width(c::AbstractCombination) = 1
+depth(c::AbstractCombination) = 1
 
 *(i::Number ..., t::Type{<:Number}) begin
 
@@ -147,36 +166,19 @@ end
 vect(a::AbstractAlgebra ...) = [hcat(fill!(a) for a in 1:a.n)]
 vect(n::Combination{<:Any} ...) = [Vector{(typeof(n.k)}(k)]
 
-size!(d::AbstractDimensions, i::Int64 ...) = begin
-    n = d.n
+size!(d::AbstractDimensions, c::Combination{Int64}) = begin
+    d.n = c
 end
-fill!(f::Function, d::NumberCombination) = begin
+
+expand!(d::AbstractDimension) = d[length(d) + 1] = 1
+
+fill!(f::Function = all, d::AbstractDimensions) = begin
     create
 end
-fill!(f::Function, c::AbstractCombination) = begin
-    f(length(c.n))
-end
-fill!(f::Function, c::AlgebraicCombination) = begin
-    f(length(c.n))
-end
-fill!(d::AbstractAlgebra) = begin
-    T = get_parameter(d)
-    Dimensions()
-end
+
 all(ad::AbstractDimensions) = begin
-    [1:length(n) for i in length(n)]
+    [Combination{Combination{<:Any}}([x for x in dimen]) for dimen in ad.n]
 end
-getindex(f::Function = all, aa::AbstractDimensions, c::NumberCombination) = begin
-    if length(c) < length(c)
-        IndexError("The $(aa.n)")
-    end
-    c[]
-end
-getindex(f::Function = all, aa::AbstractAlgebra, c::NumberCombination) = begin
-    fill!(aa)
-end
-
-
 
 """
 - OddStructures
