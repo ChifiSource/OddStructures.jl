@@ -15,33 +15,45 @@ module OddStructures
 using ParseNotEval
 using CarouselArrays
 using Dates
+import Base: vect, getindex, setindex!, (:), length, size
 
 abstract type AbstractDimensions end
+abstract type Dimensions <: AbstractDimensions end
 abstract type AbstractAlgebra <: AbstractDimensions end
-abstract type AbstractCombination <: AbstractDimensions end
-
-mutable struct NumberCombination{N <: Number} <: AbstractCombination
-    k::Vector{N}
-end
+abstract type AbstractCombination <: AbstractAlgebra end
 
 mutable struct Combination{S <: Any} <: AbstractCombination
     k::Vector{S}
 end
 
-mutable struct AlgebraicCombination{T <: Any} <: AbstractCombination
-    f::Function
-    n::NumberCombination{Int64}
-    vect::AlgebraicCombination
+mutable struct AlgebraicCombination{T <: Any} <: AbstractAlgebra
+    f::Combination{Function}
+    n::Combination{Int64}
+    AlgebraicCombination{T}(f::Function, n::Any) {where T <: Any} = new{T}(f, n)
 end
-
 
 mutable struct Dimensions <: AbstractAlgebra
-    n::NumberCombination{Int64}
+    n::Combination{Int64}
     Dimensions(i::NumberCombination{<:Any}, t::Type = Float64) = new{t}(n)::Dimensions
+    Dimensions(i::Number) = new{Any}(n)::Dimensions
 end
 
-fill!(f::Function, d::AbstractDimensions) = begin
-    f(d)
+(:)(t::Data ..., i::Int64 ...) = begin
+    Dimensions(length(i), t)
+end
+vect(a::AbstractAlgebra ...) = [hcat(fill!(a) for a in 1:a.n)]
+
+vect(n::Combination{<:Any}) = Vector{(n.k)}()
+
+depth(d::AbstractDimensions) = d.n[3]
+width(d::Dimensions) =  n[2]
+size(d::AbstractDimensions) = d.n
+size!(d::AbstractDimensions, i::Int64 ...) = begin
+    n = d.n
+end
+
+fill!(f::Function, d::NumberCombination) = begin
+    create
 end
 
 fill!(f::Function, c::AbstractCombination) = begin
@@ -55,6 +67,10 @@ end
 fill!(d::AbstractAlgebra) = begin
     T = get_parameter(d)
     Dimensions()
+end
+
+all(ad::AbstractDimensions) = begin
+    [1:length(n) for i in length(n)]
 end
 
 
@@ -71,30 +87,9 @@ end
 
 
 
-vect(a::AbstractAlgebra ...) = [hcat(fill!(a) for a in 1:a.n)]
-
-vect(a::AbstractDimensions ...) = [hcat(a) for a in 1:a.n]
-
-#==
-Combinations
-==#
-all(ad::AbstractDimensions) = begin
-    [1:length(n) for i in length(n)]
-end
 
 
-(:)(t::Data ..., i::Int64 ...) = begin
-    Dimensions(length(i), t)
-end
-(:)(dimensions::AbstractDimensions, )
-
-(:)(c::Combination{<:Any} ...) = begin
-    Combination(vcat(k))::Combination{typeof(k)}
-end
-
-
-
-(:)(f::Function, ac::AlgebraicCombination)
+(:)(f::Function, cf::Combination{Function})
 
 (:)(elements::AbstractString ...) = begin
     Combination{typeof(elements[1])}([s for s in elements]::Vector{typeof(elements[1])})
