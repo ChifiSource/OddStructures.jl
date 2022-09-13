@@ -14,18 +14,63 @@ use.
 module OddStructures
 import Toolips: Servable, write!, Component
 using ParseNotEval
-using Algebraic
 using CarouselArrays
 using Dates
+
+#==
+Combinations
+==#
+abstract type AbstractCombination <: AbstractDimensions end
+
+mutable struct Combination{S <: AbstractString}
+    k::Vector{S}
+end
+
+#==TODO find greatest sub-type
+==#
+mutable struct MixedCombination{S <: Any}
+    T::Vector{Type}
+    k::Vector{<:Any}
+    function MixedCombination()
+
+    end
+
+end
+
+(:)(c::Combination{<:Any} ...) = begin
+    Combination(vcat(k))::Combination{typeof(k)}
+end
+
+mutable struct NumberCombination{N <: Number}
+    k::Vector{N}
+end
+
+(:)(f::Function, ac::AlgebraicCombination)
+
+(:)(elements::AbstractString ...) = begin
+    Combination{typeof(elements[1])}([s for s in elements]::Vector{typeof(elements[1])})
+end
+
+(:)(elements::Number ...) = begin
+    NumericalCombination{typeof(elements[1])}()
+end
+
+
+
+
+
+string(c::Combination{<:AbstractString}) = string(join(["$k:" for k in c.k]))
+
+
+
+getindex(c::Combination, i::Int64) = c.k[i]::String
+setindex!(c::Combination, s::String, i::Int64) = c.k[i] = s
+length(c::Combination) = length(c.k)
 
 mutable struct IndexSymbol{S <: Function}
     f::Function
     IndexSymbol(symb::String = "all") = IndexSymbol{Symbol(symb)}()
 end
-
-const zeros = Index{:zeros}()
-const all = Index{:all}(:all)()
-abstract type AbstractDimensions <: Servable end
 
 function vector()
 
@@ -40,9 +85,7 @@ function depth()
 end
 
 
-abstract type AbstractOddFrame <: AbstractDimensions end
 
-abstract type AbstractTensor <: AbstractOddFrame end
 
 mutable struct Dimensions <: AbstractDimensions end
     dimensions::Int64
